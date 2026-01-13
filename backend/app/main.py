@@ -1,0 +1,51 @@
+from fastapi import FastAPI, Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from sqlmodel import Session, select
+
+from app.database import get_session
+from app.models import User
+from app.auth import create_token, verify_token
+
+app = FastAPI()
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+
+
+@app.get("/")
+def root():
+    return {"status": "Backend running"}
+
+
+# ---------- LOGIN (OAuth2 CORRECT) ----------
+@app.post("/login")
+def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    session: Session = Depends(get_session)
+):
+    user = session.exec(
+        select(User).where(User.email == form_data.username)
+    ).first()
+
+    if not user or user.password != form_data.password:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    access_token = create_token(
+        {"user_id": user.id, "email": user.email}
+    )
+
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
+# ---------- PROFILE ----------
+@app.post("/profile")
+def profile(
+    token: str = Depends(oauth2_scheme),
+    session: Session = Depends(get_session)
+):
+    payload = verify_token(token)
+
+    user = session.get(User, payload["user_id"])
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return user
