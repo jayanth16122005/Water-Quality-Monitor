@@ -7,7 +7,6 @@ from app.models import User
 from app.auth import create_token, verify_token
 
 app = FastAPI()
-
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 
@@ -16,7 +15,23 @@ def root():
     return {"status": "Backend running"}
 
 
-# ---------- LOGIN (OAuth2 CORRECT) ----------
+# ---------------- SIGNUP ----------------
+@app.post("/signup")
+def signup(name: str, email: str, password: str, session: Session = Depends(get_session)):
+
+    existing = session.exec(select(User).where(User.email == email)).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Email already registered")
+
+    user = User(name=name, email=email, password=password)
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+
+    return {"message": "User registered successfully"}
+
+
+# ---------------- LOGIN ----------------
 @app.post("/login")
 def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
@@ -29,23 +44,27 @@ def login(
     if not user or user.password != form_data.password:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    access_token = create_token(
-        {"user_id": user.id, "email": user.email}
-    )
-
-    return {"access_token": access_token, "token_type": "bearer"}
+    token = create_token({"user_id": user.id, "email": user.email})
+    return {"accessToken": token}
 
 
-# ---------- PROFILE ----------
+# ---------------- PROFILE ----------------
 @app.post("/profile")
 def profile(
     token: str = Depends(oauth2_scheme),
     session: Session = Depends(get_session)
 ):
-    payload = verify_token(token)
+    try:
+        payload = verify_token(token)
+    except:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
     user = session.get(User, payload["user_id"])
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=401, detail="User not found")
 
-    return user
+    return {
+        "id": user.id,
+        "name": user.name,
+        "email": user.email
+    }
