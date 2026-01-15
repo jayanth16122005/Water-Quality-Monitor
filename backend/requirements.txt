@@ -1,0 +1,9 @@
+fastapi==0.128.0
+uvicorn==0.40.0
+sqlmodel==0.0.31
+sqlalchemy==2.0.45
+psycopg2-binary==2.9.11
+PyJWT==2.10.1
+cryptography==46.0.3
+python-jose==3.5.0
+python-multipart==0.0.9
