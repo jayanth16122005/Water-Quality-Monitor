@@ -9,3 +9,4 @@
 
 ## API URLs
 Water stations: https://rtwqmsdb1.cpcb.gov.in/data/internet/stations/stations.json
+Water station readings: https://rtwqmsdb1.cpcb.gov.in/data/internet/layers/10/index.json
