@@ -2,22 +2,14 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 
-from database import SessionLocal
-from models import User, UserRole
+from database import get_db
+from models import User
 from schemas import UserCreate, UserResponse, LoginRequest, Token
 from security import hash_password, verify_password
 from jwt import create_access_token, decode_access_token
 
 router = APIRouter(tags=["Auth"])
 security = HTTPBearer()
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 @router.post("/register", response_model=UserResponse)
