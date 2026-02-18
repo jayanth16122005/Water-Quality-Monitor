@@ -7,6 +7,7 @@ import Login from "./components/Login";
 import Alerts from "./components/Alerts";
 import Collaborations from "./components/Collaborations";
 import Analytics from "./components/Analytics";
+import PredictiveAlerts from "./components/PredictiveAlerts";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(
@@ -38,6 +39,7 @@ function App() {
       {page === "alerts" && <Alerts />}
       {page === "collaborations" && <Collaborations />}
       {page === "analytics" && <Analytics />}
+      {page === "predictive" && <PredictiveAlerts />}
     </div>
   );
 }

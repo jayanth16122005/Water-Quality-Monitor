@@ -152,11 +152,39 @@ function Navbar({ onNavigate, onLogout }) {
             >
               Analytics
             </button>
+            <button 
+              style={btnStyle} 
+              onClick={() => onNavigate("predictive")}
+              onMouseEnter={(e) => {
+                e.target.style.background = "rgba(255, 255, 255, 0.3)";
+                e.target.style.borderColor = "rgba(255, 255, 255, 0.6)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = "rgba(255, 255, 255, 0.2)";
+                e.target.style.borderColor = "rgba(255, 255, 255, 0.4)";
+              }}
+            >
+              Predictive Alerts
+            </button>
           </>
         )}
 
         {user?.role === "user" && (
           <>
+            <button 
+              style={btnStyle} 
+              onClick={() => onNavigate("predictive")}
+              onMouseEnter={(e) => {
+                e.target.style.background = "rgba(255, 255, 255, 0.3)";
+                e.target.style.borderColor = "rgba(255, 255, 255, 0.6)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = "rgba(255, 255, 255, 0.2)";
+                e.target.style.borderColor = "rgba(255, 255, 255, 0.4)";
+              }}
+            >
+              Predictive Alerts
+            </button>
             <button 
               style={btnStyle} 
               onClick={() => onNavigate("alerts")}
