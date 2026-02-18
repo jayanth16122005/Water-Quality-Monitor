@@ -71,3 +71,59 @@ class ReportResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class AlertType(str, Enum):
+    boil_notice = "boil_notice"
+    contamination = "contamination"
+    outage = "outage"
+
+
+class AlertCreate(BaseModel):
+    type: AlertType
+    message: str
+    location: str
+    latitude: Optional[str] = None
+    longitude: Optional[str] = None
+    severity: str = "medium"
+
+
+class AlertResponse(BaseModel):
+    id: int
+    type: AlertType
+    message: str
+    location: str
+    latitude: Optional[str]
+    longitude: Optional[str]
+    severity: str
+    issued_at: datetime
+    resolved_at: Optional[datetime]
+    is_active: str
+
+    class Config:
+        from_attributes = True
+
+
+class CollaborationCreate(BaseModel):
+    ngo_name: str
+    project_name: str
+    contact_email: EmailStr
+    phone: Optional[str] = None
+    location: str
+    description: Optional[str] = None
+    website: Optional[str] = None
+
+
+class CollaborationResponse(BaseModel):
+    id: int
+    ngo_name: str
+    project_name: str
+    contact_email: str
+    phone: Optional[str]
+    location: str
+    description: Optional[str]
+    website: Optional[str]
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

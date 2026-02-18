@@ -4,6 +4,9 @@ import Navbar from "./components/Navbar";
 import SubmitReport from "./components/SubmitReport";
 import ViewReports from "./components/ViewReports";
 import Login from "./components/Login";
+import Alerts from "./components/Alerts";
+import Collaborations from "./components/Collaborations";
+import Analytics from "./components/Analytics";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(
@@ -32,6 +35,9 @@ function App() {
       {page === "report" && <SubmitReport />}
       {page === "view" && <ViewReports filterType="pending" />}
       {page === "all_reports" && <ViewReports filterType="verified-rejected" />}
+      {page === "alerts" && <Alerts />}
+      {page === "collaborations" && <Collaborations />}
+      {page === "analytics" && <Analytics />}
     </div>
   );
 }

@@ -49,6 +49,34 @@ function Navbar({ onNavigate, onLogout }) {
             >
               View Reports
             </button>
+            <button 
+              style={btnStyle} 
+              onClick={() => onNavigate("analytics")}
+              onMouseEnter={(e) => {
+                e.target.style.background = "rgba(255, 255, 255, 0.3)";
+                e.target.style.borderColor = "rgba(255, 255, 255, 0.6)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = "rgba(255, 255, 255, 0.2)";
+                e.target.style.borderColor = "rgba(255, 255, 255, 0.4)";
+              }}
+            >
+              Analytics
+            </button>
+            <button 
+              style={btnStyle} 
+              onClick={() => onNavigate("alerts")}
+              onMouseEnter={(e) => {
+                e.target.style.background = "rgba(255, 255, 255, 0.3)";
+                e.target.style.borderColor = "rgba(255, 255, 255, 0.6)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = "rgba(255, 255, 255, 0.2)";
+                e.target.style.borderColor = "rgba(255, 255, 255, 0.4)";
+              }}
+            >
+              Alerts
+            </button>
           </>
         )}
 
@@ -81,6 +109,67 @@ function Navbar({ onNavigate, onLogout }) {
               }}
             >
               Verify Reports
+            </button>
+            <button 
+              style={btnStyle} 
+              onClick={() => onNavigate("alerts")}
+              onMouseEnter={(e) => {
+                e.target.style.background = "rgba(255, 255, 255, 0.3)";
+                e.target.style.borderColor = "rgba(255, 255, 255, 0.6)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = "rgba(255, 255, 255, 0.2)";
+                e.target.style.borderColor = "rgba(255, 255, 255, 0.4)";
+              }}
+            >
+              Alerts
+            </button>
+            <button 
+              style={btnStyle} 
+              onClick={() => onNavigate("collaborations")}
+              onMouseEnter={(e) => {
+                e.target.style.background = "rgba(255, 255, 255, 0.3)";
+                e.target.style.borderColor = "rgba(255, 255, 255, 0.6)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = "rgba(255, 255, 255, 0.2)";
+                e.target.style.borderColor = "rgba(255, 255, 255, 0.4)";
+              }}
+            >
+              Collaborations
+            </button>
+            <button 
+              style={btnStyle} 
+              onClick={() => onNavigate("analytics")}
+              onMouseEnter={(e) => {
+                e.target.style.background = "rgba(255, 255, 255, 0.3)";
+                e.target.style.borderColor = "rgba(255, 255, 255, 0.6)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = "rgba(255, 255, 255, 0.2)";
+                e.target.style.borderColor = "rgba(255, 255, 255, 0.4)";
+              }}
+            >
+              Analytics
+            </button>
+          </>
+        )}
+
+        {user?.role === "user" && (
+          <>
+            <button 
+              style={btnStyle} 
+              onClick={() => onNavigate("alerts")}
+              onMouseEnter={(e) => {
+                e.target.style.background = "rgba(255, 255, 255, 0.3)";
+                e.target.style.borderColor = "rgba(255, 255, 255, 0.6)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = "rgba(255, 255, 255, 0.2)";
+                e.target.style.borderColor = "rgba(255, 255, 255, 0.4)";
+              }}
+            >
+              Alerts
             </button>
           </>
         )}

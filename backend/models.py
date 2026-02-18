@@ -64,3 +64,38 @@ class StationReading(Base):
     parameter = Column(String, nullable=False)
     value = Column(String, nullable=False)
     recorded_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class AlertType(enum.Enum):
+    boil_notice = "boil_notice"
+    contamination = "contamination"
+    outage = "outage"
+
+
+class Alert(Base):
+    __tablename__ = "alerts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    type = Column(Enum(AlertType), nullable=False)
+    message = Column(Text, nullable=False)
+    location = Column(String, nullable=False)
+    latitude = Column(String, nullable=True)
+    longitude = Column(String, nullable=True)
+    severity = Column(String, default="medium")  # low, medium, high, critical
+    issued_at = Column(DateTime(timezone=True), server_default=func.now())
+    resolved_at = Column(DateTime(timezone=True), nullable=True)
+    is_active = Column(String, default="true")
+
+
+class Collaboration(Base):
+    __tablename__ = "collaborations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    ngo_name = Column(String, nullable=False)
+    project_name = Column(String, nullable=False)
+    contact_email = Column(String, nullable=False)
+    phone = Column(String, nullable=True)
+    location = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    website = Column(String, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

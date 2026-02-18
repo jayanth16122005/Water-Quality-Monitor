@@ -9,6 +9,8 @@ from routers.auth import router as auth_router
 
 from routers.reports import router as reports_router
 from routers.stations import router as stations_router
+from routers.alerts import router as alerts_router
+from routers.collaborations import router as collaborations_router
 
 app = FastAPI(title="Water Quality Monitor")
 
@@ -39,3 +41,5 @@ def test_db():
 app.include_router(auth_router)
 app.include_router(reports_router, prefix="/reports")
 app.include_router(stations_router, prefix="/stations")
+app.include_router(alerts_router, prefix="/alerts")
+app.include_router(collaborations_router, prefix="/collaborations")
