@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from database import get_db
-from models import User, Alert, StationReadings
-from dependencies import get_current_user
+from models import User, Alert, StationReading
+from routers.dependencies import get_current_user
 
 router = APIRouter()
 
@@ -16,7 +16,7 @@ def analyze_water_quality_trends(db: Session, station_id: int, lookback_days: in
     
     # Get readings from the past N days
     start_date = datetime.utcnow() - timedelta(days=lookback_days)
-    readings = db.query(StationReadings).filter(
+    readings = db.query(StationReading).filter(
         StationReadings.station_id == station_id,
         StationReadings.recorded_at >= start_date
     ).order_by(StationReadings.recorded_at).all()
@@ -178,7 +178,7 @@ def get_water_quality_trends(
     
     # Get historical readings
     start_date = datetime.utcnow() - timedelta(days=lookback_days)
-    readings = db.query(StationReadings).filter(
+    readings = db.query(StationReading).filter(
         StationReadings.station_id == station_id,
         StationReadings.recorded_at >= start_date
     ).order_by(StationReadings.recorded_at).all()
