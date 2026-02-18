@@ -1,21 +1,20 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
-const API = "http://127.0.0.1:8000";
+const API = "http://localhost:8000";
 
 function Login({ onLogin }) {
-  const navigate = useNavigate();
-
   const [mode, setMode] = useState("login");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("user");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
     try {
       if (mode === "login") {
@@ -25,9 +24,12 @@ function Login({ onLogin }) {
           body: JSON.stringify({ email, password }),
         });
 
-        if (!res.ok) throw new Error("Invalid credentials");
-
         const data = await res.json();
+        
+        if (!res.ok) {
+          throw new Error(data.detail || "Invalid credentials");
+        }
+
         localStorage.setItem("token", data.access_token);
 
         const meRes = await fetch(`${API}/me`, {
@@ -36,17 +38,14 @@ function Login({ onLogin }) {
           },
         });
 
-        if (!meRes.ok) throw new Error("Failed to fetch user");
-
         const user = await meRes.json();
-        localStorage.setItem("user", JSON.stringify(user));
-
-        if (user.role === "authority") {
-          navigate("/authority-dashboard");
-        } else {
-          navigate("/user-dashboard");
+        
+        if (!meRes.ok) {
+          localStorage.removeItem("token");
+          throw new Error(user.detail || "Failed to fetch user");
         }
 
+        localStorage.setItem("user", JSON.stringify(user));
         onLogin();
       } else {
         const res = await fetch(`${API}/register`, {
@@ -60,29 +59,44 @@ function Login({ onLogin }) {
           }),
         });
 
-        if (!res.ok) throw new Error("Registration failed");
+        const data = await res.json();
 
-        alert("Registered successfully. Please login.");
+        if (!res.ok) {
+          throw new Error(data.detail || "Registration failed");
+        }
+
+        setError("");
+        alert("✓ Registered successfully. Please login.");
         setMode("login");
+        setName("");
+        setEmail("");
+        setPassword("");
+        setRole("user");
       }
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "An error occurred");
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div style={pageStyle}>
       <div style={cardStyle}>
-        <h2>{mode === "login" ? "Login" : "Register"}</h2>
+        <h2 style={{ color: "#0f766e", marginBottom: "20px" }}>
+          {mode === "login" ? "🔐 Login" : "📝 Register"}
+        </h2>
 
         <form onSubmit={handleSubmit}>
           {mode === "register" && (
             <>
               <input
-                placeholder="Name"
+                placeholder="Full Name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 style={inputStyle}
+                required
               />
 
               <select
@@ -90,17 +104,19 @@ function Login({ onLogin }) {
                 onChange={(e) => setRole(e.target.value)}
                 style={inputStyle}
               >
-                <option value="user">User</option>
-                <option value="authority">Authority</option>
+                <option value="user">👤 Regular User</option>
+                <option value="authority">👮 Authority/Admin</option>
               </select>
             </>
           )}
 
           <input
             placeholder="Email"
+            type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             style={inputStyle}
+            required
           />
 
           <input
@@ -109,32 +125,49 @@ function Login({ onLogin }) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             style={inputStyle}
+            required
           />
 
-          {error && <p style={{ color: "red" }}>{error}</p>}
+          {error && (
+            <p style={{ color: "#dc2626", fontSize: "14px", marginBottom: "12px" }}>
+              ❌ {error}
+            </p>
+          )}
 
-          <button type="submit" style={buttonStyle}>
-            {mode === "login" ? "Login" : "Register"}
+          <button 
+            type="submit" 
+            style={{...buttonStyle, opacity: loading ? 0.6 : 1, cursor: loading ? "not-allowed" : "pointer"}}
+            disabled={loading}
+          >
+            {loading ? "Loading..." : (mode === "login" ? "Login" : "Register")}
           </button>
         </form>
 
-        <p style={{ marginTop: "10px" }}>
+        <p style={{ marginTop: "20px", color: "#666", fontSize: "14px" }}>
           {mode === "login" ? (
             <>
-              Don’t have an account?{" "}
-              <span style={linkStyle} onClick={() => setMode("register")}>
-                Register
+              Don't have an account?{" "}
+              <span style={linkStyle} onClick={() => { setMode("register"); setError(""); }}>
+                Register here
               </span>
             </>
           ) : (
             <>
               Already have an account?{" "}
-              <span style={linkStyle} onClick={() => setMode("login")}>
-                Login
+              <span style={linkStyle} onClick={() => { setMode("login"); setError(""); }}>
+                Login here
               </span>
             </>
           )}
         </p>
+
+        {mode === "register" && (
+          <p style={{ marginTop: "16px", padding: "12px", background: "#ecfdf5", borderRadius: "6px", fontSize: "12px", color: "#0f766e" }}>
+            💡 Test Credentials:<br/>
+            User: user@example.com / password123<br/>
+            Authority: authority@example.com / password123
+          </p>
+        )}
       </div>
     </div>
   );
@@ -165,6 +198,9 @@ const inputStyle = {
   marginBottom: "12px",
   borderRadius: "6px",
   border: "1px solid #d1d5db",
+  fontSize: "14px",
+  boxSizing: "border-box",
+  transition: "border-color 0.2s ease",
 };
 
 const buttonStyle = {
@@ -178,6 +214,7 @@ const buttonStyle = {
   cursor: "pointer",
   transition: "all 0.3s ease",
   boxShadow: "0 4px 12px rgba(13, 148, 136, 0.3)",
+  fontSize: "16px",
 };
 
 const linkStyle = {
@@ -185,6 +222,7 @@ const linkStyle = {
   cursor: "pointer",
   fontWeight: "600",
   transition: "color 0.2s ease",
+  textDecoration: "underline",
 };
 
 export default Login;
