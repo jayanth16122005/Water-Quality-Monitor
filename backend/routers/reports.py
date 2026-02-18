@@ -38,8 +38,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from database import get_db
-from models import Report
-from schemas import ReportCreate, ReportResponse, ReportStatus
+from models import Report, ReportStatus
+from schemas import ReportCreate, ReportResponse
 from routers.dependencies import get_current_user
 
 router = APIRouter()
@@ -53,10 +53,12 @@ def create_report(
     new_report = Report(
         user_id=user.id,
         location=report.location,
+        latitude=report.latitude,
+        longitude=report.longitude,
         description=report.description,
         water_source=report.water_source,
         photo_url=report.photo_url,
-        status=ReportStatus.pending,
+        status="pending"
     )
     db.add(new_report)
     db.commit()
@@ -74,10 +76,10 @@ def get_my_reports(
 def get_all_reports(db: Session = Depends(get_db)):
     return db.query(Report).all()
 
-@router.put("/status", response_model=ReportResponse)
+@router.put("/{report_id}/status", response_model=ReportResponse)
 def update_report_status(
     report_id: int,
-    status: ReportStatus,
+    status: str,
     db: Session = Depends(get_db),
     user=Depends(get_current_user),
 ):

@@ -6,12 +6,26 @@ const API = "http://127.0.0.1:8000";
 
 function StationMap() {
   const [stations, setStations] = useState([]);
+  const [reports, setReports] = useState([]);
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    
+    // Fetch water stations
     fetch(`${API}/stations/`)
       .then((res) => res.json())
       .then((data) => setStations(data))
       .catch((err) => console.error("Failed to load stations", err));
+
+    // Fetch reports with coordinates
+    if (token) {
+      fetch(`${API}/reports/`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then((res) => res.json())
+        .then((data) => setReports(data.filter(r => r.latitude && r.longitude)))
+        .catch((err) => console.error("Failed to load reports", err));
+    }
   }, []);
 
   return (
@@ -20,12 +34,12 @@ function StationMap() {
         style={{
           marginBottom: "14px",
           paddingLeft: "12px",
-          borderLeft: "4px solid #38bdf8",
-          color: "#6b2fa7",
-          fontWeight: "600",
+          borderLeft: "4px solid #0d9488",
+          color: "#0f766e",
+          fontWeight: "700",
         }}
       >
-        Real-time Station Map
+        🌍 Real-time Station Map
       </h2>
 
       <div
@@ -33,8 +47,9 @@ function StationMap() {
           height: "500px",
           borderRadius: "12px",
           overflow: "hidden",
-          backgroundColor: "#0f172a",
-          boxShadow: "0 10px 25px rgba(0,0,0,0.35)",
+          backgroundColor: "#f8fbf9",
+          boxShadow: "0 10px 30px rgba(13, 148, 136, 0.15)",
+          border: "1px solid #d1fae5",
         }}
       >
         <MapContainer
@@ -46,13 +61,30 @@ function StationMap() {
 
           {stations.map((station) => (
             <Marker
-              key={station.id}
+              key={`station-${station.id}`}
               position={[station.latitude, station.longitude]}
             >
               <Popup>
                 <strong>{station.name}</strong>
                 <br />
                 Location: {station.location}
+              </Popup>
+            </Marker>
+          ))}
+
+          {reports.map((report) => (
+            <Marker
+              key={`report-${report.id}`}
+              position={[parseFloat(report.latitude), parseFloat(report.longitude)]}
+            >
+              <Popup>
+                <strong>Report: {report.location}</strong>
+                <br />
+                Description: {report.description}
+                <br />
+                Water Source: {report.water_source}
+                <br />
+                Status: {report.status}
               </Popup>
             </Marker>
           ))}

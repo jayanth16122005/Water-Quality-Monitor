@@ -30,7 +30,8 @@ function App() {
 
       {page === "map" && <StationMap />}
       {page === "report" && <SubmitReport />}
-      {page === "view" && <ViewReports />}
+      {page === "view" && <ViewReports filterType="pending" />}
+      {page === "all_reports" && <ViewReports filterType="verified-rejected" />}
     </div>
   );
 }

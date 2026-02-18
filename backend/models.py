@@ -37,6 +37,8 @@ class Report(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     photo_url = Column(String, nullable=True)
     location = Column(String, nullable=False)
+    latitude = Column(String, nullable=True)
+    longitude = Column(String, nullable=True)
     description = Column(Text, nullable=False)
     water_source = Column(String, nullable=False)
     status = Column(Enum(ReportStatus), default=ReportStatus.pending)

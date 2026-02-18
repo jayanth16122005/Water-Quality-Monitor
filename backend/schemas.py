@@ -50,6 +50,8 @@ class ReportStatus(str, Enum):
 
 class ReportCreate(BaseModel):
     location: str
+    latitude: Optional[str] = None
+    longitude: Optional[str] = None
     description: str
     water_source: str
     photo_url: Optional[str] = None
@@ -59,6 +61,8 @@ class ReportResponse(BaseModel):
     id: int
     user_id: int
     location: str
+    latitude: Optional[str]
+    longitude: Optional[str]
     description: str
     water_source: str
     photo_url: Optional[str]

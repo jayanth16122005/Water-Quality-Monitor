@@ -146,15 +146,17 @@ const pageStyle = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  background: "linear-gradient(135deg, #020617, #0f172a)",
+  background: "linear-gradient(135deg, #0f766e 0%, #1e7e74 50%, #0d9488 100%)",
 };
 
 const cardStyle = {
   width: "360px",
   background: "white",
   padding: "30px",
-  borderRadius: "10px",
+  borderRadius: "12px",
   textAlign: "center",
+  boxShadow: "0 20px 25px rgba(15, 118, 110, 0.15)",
+  border: "1px solid #ecfdf5",
 };
 
 const inputStyle = {
@@ -168,17 +170,21 @@ const inputStyle = {
 const buttonStyle = {
   width: "100%",
   padding: "12px",
-  borderRadius: "6px",
+  borderRadius: "8px",
   border: "none",
-  background: "#2563eb",
+  background: "linear-gradient(135deg, #0d9488 0%, #10b981 100%)",
   color: "white",
   fontWeight: "bold",
+  cursor: "pointer",
+  transition: "all 0.3s ease",
+  boxShadow: "0 4px 12px rgba(13, 148, 136, 0.3)",
 };
 
 const linkStyle = {
-  color: "#2563eb",
+  color: "#0d9488",
   cursor: "pointer",
-  fontWeight: "500",
+  fontWeight: "600",
+  transition: "color 0.2s ease",
 };
 
 export default Login;

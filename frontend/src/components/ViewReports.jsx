@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 
 const API = "http://127.0.0.1:8000";
 
-function ViewReports() {
+function ViewReports({ filterType = "pending" }) {
   const [reports, setReports] = useState([]);
   const token = localStorage.getItem("token");
+  const user = JSON.parse(localStorage.getItem("user"));
 
   const fetchReports = async () => {
     const res = await fetch(`${API}/reports/`, {
@@ -42,16 +43,36 @@ function ViewReports() {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h2>All Submitted Reports</h2>
+      <h2 style={{ color: "#0f766e", borderLeft: "4px solid #0d9488", paddingLeft: "12px", marginBottom: "20px" }}>
+        📊 {
+          filterType === "pending" 
+            ? (user?.role === "authority" ? "Pending Reports for Verification" : "My Submitted Reports")
+            : "All Verified & Rejected Reports"
+        }
+      </h2>
 
-      {reports.map((report) => (
+      {reports
+        .filter(r => {
+          if (filterType === "verified-rejected") {
+            return r.status === "verified" || r.status === "rejected";
+          } else if (filterType === "pending") {
+            if (user?.role === "authority") {
+              return r.status === "pending";
+            }
+            return true;
+          }
+          return true;
+        })
+        .map((report) => (
         <div
           key={report.id}
           style={{
-            border: "1px solid #ccc",
-            padding: "12px",
-            marginBottom: "12px",
-            borderRadius: "6px",
+            border: "1px solid #d1fae5",
+            padding: "16px",
+            marginBottom: "16px",
+            borderRadius: "8px",
+            backgroundColor: "#ecfdf5",
+            boxShadow: "0 2px 8px rgba(13, 148, 136, 0.08)",
           }}
         >
           <p><strong>Location:</strong> {report.location}</p>
@@ -59,16 +80,36 @@ function ViewReports() {
           <p><strong>Water Source:</strong> {report.water_source}</p>
           <p><strong>Status:</strong> {report.status}</p>
 
-          {report.status === "pending" && (
+          {user?.role === "authority" && filterType === "pending" && report.status === "pending" && (
             <>
-              <button onClick={() => updateStatus(report.id, "verified")}>
-                Verify
+              <button
+                onClick={() => updateStatus(report.id, "verified")}
+                style={{
+                  padding: "8px 16px",
+                  background: "linear-gradient(135deg, #0d9488 0%, #10b981 100%)",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                  fontWeight: "600",
+                  marginRight: "10px",
+                }}
+              >
+                ✓ Verify
               </button>
               <button
                 onClick={() => updateStatus(report.id, "rejected")}
-                style={{ marginLeft: "10px" }}
+                style={{
+                  padding: "8px 16px",
+                  background: "#ef4444",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                  fontWeight: "600",
+                }}
               >
-                Reject
+                ✕ Reject
               </button>
             </>
           )}
