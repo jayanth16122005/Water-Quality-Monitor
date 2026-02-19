@@ -1,0 +1,39 @@
+Water Quality Monitor — Login Credentials
+==========================================
+
+These are all accounts in the database.
+All accounts created via the seed script use: password123
+Manually registered accounts (via the signup form) may have different passwords.
+
+-----------------------------------------------------------------------
+ROLE        | EMAIL                     | PASSWORD
+-----------------------------------------------------------------------
+user        | john@test.com             | (manually registered)
+user        | jane@test.com             | (manually registered)
+user        | testuser@example.com      | (manually registered)
+user        | jayanth16122005@gmail.com | (manually registered)
+user        | test@example.com          | (manually registered)
+user        | jayanth16@gmail.com       | pass1234567
+authority   | auth@gm.com               | pass1234567
+-----------------------------------------------------------------------
+user        | user@example.com          | password123
+authority   | authority@example.com     | password123
+-----------------------------------------------------------------------
+
+Seeded accounts (from seed_users.py — all use password123):
+-----------------------------------------------------------------------
+ROLE        | EMAIL                     | PASSWORD
+-----------------------------------------------------------------------
+citizen     | citizen@example.com       | password123
+user        | user@example.com          | password123
+ngo         | ngo@example.com           | password123
+authority   | authority@example.com     | password123
+admin       | admin@example.com         | password123
+-----------------------------------------------------------------------
+
+Role permissions:
+  citizen   — can submit reports, view alerts
+  user      — same as citizen
+  ngo       — can view/create NGO projects
+  authority — can create stations, add readings, run auto-predict
+  admin     — full access

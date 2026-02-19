@@ -85,86 +85,41 @@ function Analytics() {
     return { min: min.toFixed(2), max: max.toFixed(2), avg };
   };
 
-  const containerStyle = {
-    padding: "20px",
-    minHeight: "100vh",
-    background: "linear-gradient(135deg, #f0f9ff 0%, #ecfdf5 100%)",
-  };
-
-  const headerStyle = {
-    marginBottom: "20px",
-    paddingLeft: "12px",
-    borderLeft: "4px solid #0d9488",
-    color: "#0f766e",
-    fontWeight: "800",
-    fontSize: "28px",
-  };
-
-  const controlsStyle = {
-    display: "flex",
-    gap: "12px",
-    marginBottom: "20px",
-    flexWrap: "wrap",
-    alignItems: "center",
-  };
-
-  const selectStyle = {
-    padding: "8px 12px",
-    border: "1px solid #d1fae5",
-    borderRadius: "6px",
-    fontSize: "14px",
-    color: "#0f766e",
-    fontWeight: "500",
-  };
-
-  const cardStyle = {
-    background: "white",
-    border: "1px solid #d1fae5",
-    borderRadius: "8px",
-    padding: "16px",
-    marginBottom: "16px",
-    boxShadow: "0 2px 8px rgba(13, 148, 136, 0.08)",
-  };
-
-  const statsContainerStyle = {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-    gap: "12px",
-    marginBottom: "20px",
-  };
-
-  const statBoxStyle = {
-    background: "white",
-    border: "1px solid #d1fae5",
-    borderRadius: "8px",
-    padding: "16px",
-    textAlign: "center",
-    boxShadow: "0 2px 8px rgba(13, 148, 136, 0.08)",
-  };
-
-  const statValueStyle = {
-    fontSize: "24px",
-    fontWeight: "700",
-    color: "#0d9488",
-    margin: "8px 0",
-  };
-
-  const statLabelStyle = {
-    fontSize: "12px",
-    color: "#64748b",
-    fontWeight: "600",
+  const THRESHOLDS = {
+    pH: 8.5,
+    DO: 4.0,
+    turbidity: 10.0,
+    lead: 0.015,
+    arsenic: 0.01,
   };
 
   const filteredReadings = getFilteredReadings();
   const stats = calculateStats();
 
-  const chartHeight = Math.max(...filteredReadings.map((r) => parseFloat(r.value)), 100);
+  const chartHeight = Math.max(...filteredReadings.map((r) => parseFloat(r.value)), THRESHOLDS[selectedParameter] || 0, 10);
+  const thresholdValue = THRESHOLDS[selectedParameter];
+
+  const selectStyle = {
+    padding: "9px 14px",
+    border: "1px solid var(--border-subtle)",
+    borderRadius: "8px",
+    fontSize: "13px",
+    color: "var(--text-primary)",
+    fontWeight: "500",
+    background: "var(--bg-glass)",
+    cursor: "pointer",
+    transition: "all 0.25s ease",
+    outline: "none",
+  };
 
   return (
-    <div style={containerStyle}>
-      <h2 style={headerStyle}>📊 Water Quality Analytics</h2>
+    <div className="page-container">
+      <h2 className="page-header">
+        <span>📊</span> Water Quality Analytics
+      </h2>
 
-      <div style={controlsStyle}>
+      {/* Controls */}
+      <div style={{ display: "flex", gap: "12px", marginBottom: "20px", flexWrap: "wrap", alignItems: "center" }}>
         <select
           value={selectedStation || ""}
           onChange={(e) => setSelectedStation(parseInt(e.target.value))}
@@ -200,32 +155,33 @@ function Analytics() {
         </select>
       </div>
 
-      <div style={statsContainerStyle}>
-        <div style={statBoxStyle}>
-          <div style={statLabelStyle}>📉 Minimum</div>
-          <div style={statValueStyle}>{stats.min}</div>
-        </div>
-        <div style={statBoxStyle}>
-          <div style={statLabelStyle}>📈 Maximum</div>
-          <div style={statValueStyle}>{stats.max}</div>
-        </div>
-        <div style={statBoxStyle}>
-          <div style={statLabelStyle}>📊 Average</div>
-          <div style={statValueStyle}>{stats.avg}</div>
-        </div>
-        <div style={statBoxStyle}>
-          <div style={statLabelStyle}>📞 Data Points</div>
-          <div style={statValueStyle}>{filteredReadings.length}</div>
-        </div>
+      {/* Stats Grid */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "12px", marginBottom: "20px" }}>
+        {[
+          { label: "📉 Minimum", value: stats.min, color: "#6366f1" },
+          { label: "📈 Maximum", value: stats.max, color: "#f59e0b" },
+          { label: "📊 Average", value: stats.avg, color: "#06d6a0" },
+          { label: "🔢 Data Points", value: filteredReadings.length, color: "#ec4899" },
+        ].map((s, i) => (
+          <div key={i} className="stat-card">
+            <div style={{ fontSize: "11px", color: "var(--text-muted)", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+              {s.label}
+            </div>
+            <div style={{ fontSize: "28px", fontWeight: "700", color: s.color, margin: "6px 0" }}>
+              {s.value}
+            </div>
+          </div>
+        ))}
       </div>
 
-      <div style={cardStyle}>
-        <h3 style={{ color: "#0f766e", marginBottom: "16px", fontSize: "18px", fontWeight: "700" }}>
-          Trend Chart - {selectedParameter}
+      {/* Chart */}
+      <div className="glass-card" style={{ padding: "20px", marginBottom: "20px" }}>
+        <h3 style={{ color: "var(--text-primary)", marginBottom: "16px", marginTop: 0, fontWeight: "700" }}>
+          Trend Chart — {selectedParameter}
         </h3>
 
         {filteredReadings.length === 0 ? (
-          <p style={{ textAlign: "center", color: "#64748b" }}>No data available for selected period</p>
+          <p style={{ textAlign: "center", color: "var(--text-muted)", padding: "40px 0" }}>No data available for selected period</p>
         ) : (
           <div style={{ overflowX: "auto", minHeight: "300px", position: "relative" }}>
             <svg
@@ -241,10 +197,35 @@ function Analytics() {
                   y1={300 - percent * 250}
                   x2="100%"
                   y2={300 - percent * 250}
-                  stroke="#e0e7ff"
+                  stroke="rgba(255,255,255,0.04)"
                   strokeDasharray="5,5"
                 />
               ))}
+
+              {/* Threshold line */}
+              {thresholdValue != null && (
+                <>
+                  <line
+                    x1="50"
+                    y1={50 + (1 - thresholdValue / chartHeight) * 250}
+                    x2="100%"
+                    y2={50 + (1 - thresholdValue / chartHeight) * 250}
+                    stroke="#ef4444"
+                    strokeWidth="2"
+                    strokeDasharray="8,4"
+                  />
+                  <text
+                    x="55"
+                    y={50 + (1 - thresholdValue / chartHeight) * 250 - 6}
+                    fill="#ef4444"
+                    fontSize="11"
+                    fontWeight="600"
+                    fontFamily="Inter, sans-serif"
+                  >
+                    Threshold: {thresholdValue}
+                  </text>
+                </>
+              )}
 
               {/* Data line */}
               <polyline
@@ -256,9 +237,17 @@ function Analytics() {
                   })
                   .join(" ")}
                 fill="none"
-                stroke="#0d9488"
-                strokeWidth="2"
+                stroke="#06d6a0"
+                strokeWidth="2.5"
               />
+
+              {/* Gradient area fill */}
+              <defs>
+                <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#06d6a0" stopOpacity="0.2" />
+                  <stop offset="100%" stopColor="#06d6a0" stopOpacity="0" />
+                </linearGradient>
+              </defs>
 
               {/* Data points */}
               {filteredReadings.map((r, i) => {
@@ -270,7 +259,9 @@ function Analytics() {
                     cx={x}
                     cy={y}
                     r="4"
-                    fill="#0d9488"
+                    fill="#06d6a0"
+                    stroke="var(--bg-primary)"
+                    strokeWidth="2"
                   />
                 );
               })}
@@ -279,32 +270,33 @@ function Analytics() {
         )}
       </div>
 
-      <div style={cardStyle}>
-        <h3 style={{ color: "#0f766e", marginBottom: "12px", fontSize: "16px", fontWeight: "700" }}>
+      {/* Reading History Table */}
+      <div className="glass-card" style={{ padding: "20px" }}>
+        <h3 style={{ color: "var(--text-primary)", marginBottom: "12px", marginTop: 0, fontWeight: "700" }}>
           Reading History
         </h3>
         <div style={{ maxHeight: "400px", overflowY: "auto" }}>
           {filteredReadings.length === 0 ? (
-            <p style={{ color: "#64748b" }}>No readings available</p>
+            <p style={{ color: "var(--text-muted)" }}>No readings available</p>
           ) : (
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
-                <tr style={{ borderBottom: "2px solid #d1fae5" }}>
-                  <th style={{ textAlign: "left", padding: "8px", color: "#0f766e", fontWeight: "600" }}>
+                <tr style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+                  <th style={{ textAlign: "left", padding: "10px", color: "var(--accent)", fontWeight: "600", fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
                     Date & Time
                   </th>
-                  <th style={{ textAlign: "left", padding: "8px", color: "#0f766e", fontWeight: "600" }}>
+                  <th style={{ textAlign: "left", padding: "10px", color: "var(--accent)", fontWeight: "600", fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
                     Value
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {filteredReadings.slice(-20).reverse().map((r, i) => (
-                  <tr key={i} style={{ borderBottom: "1px solid #e0e7ff" }}>
-                    <td style={{ padding: "8px", color: "#475569", fontSize: "13px" }}>
+                  <tr key={i} style={{ borderBottom: "1px solid var(--border-subtle)", transition: "background 0.2s" }}>
+                    <td style={{ padding: "10px", color: "var(--text-secondary)", fontSize: "13px" }}>
                       {new Date(r.recorded_at).toLocaleString()}
                     </td>
-                    <td style={{ padding: "8px", color: "#0d9488", fontWeight: "600", fontSize: "14px" }}>
+                    <td style={{ padding: "10px", color: "var(--accent)", fontWeight: "600", fontSize: "14px" }}>
                       {r.value}
                     </td>
                   </tr>

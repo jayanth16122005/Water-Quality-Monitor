@@ -1,0 +1,309 @@
+================================================================================
+         WATER QUALITY MONITOR — ROLE-BASED ACCESS & FEATURE GUIDE
+================================================================================
+
+
+================================================================================
+1. CITIZEN (Default Role)
+================================================================================
+
+Citizens are everyday users who can report water quality issues and stay
+informed about water conditions in their area.
+
+Features Available:
+  ✅ Dashboard           — View aggregated stats: total stations, readings,
+                           pie charts (alert/report status), box plot of
+                           parameter statistics, and latest alerts/reports.
+  ✅ Station Map          — View all water monitoring stations on an
+                           interactive map with markers.
+  ✅ Submit Report        — Submit a pollution or water quality issue report
+                           with location, description, water source, optional
+                           station name, and photo upload.
+  ✅ All Reports          — View all submitted reports across the system.
+  ✅ Alerts               — View all water quality alerts (contamination,
+                           boil notices, outages) with severity levels.
+                           Can click "Report Issue" on any alert to file a
+                           linked report.
+  ✅ Collaborations       — View existing collaboration projects between
+                           authorities and organisations.
+  ✅ Analytics            — View water quality trend charts per station,
+                           filter by parameter (pH, DO, turbidity, lead,
+                           arsenic) and time range. Includes threshold line.
+  ✅ Predictive Alerts    — View AI/ML-based predictive water quality alerts
+                           (read-only).
+
+Restricted:
+  ❌ Cannot create/resolve alerts
+  ❌ Cannot verify or reject reports
+  ❌ Cannot add station readings
+  ❌ Cannot create/manage water stations
+  ❌ Cannot create collaborations
+  ❌ Cannot publish NGO projects
+
+
+================================================================================
+2. USER
+================================================================================
+
+The "user" role has the same access as Citizen. It is an alternate general-
+purpose role for registered users.
+
+Features Available:
+  (Same as Citizen — all features listed above apply)
+
+
+================================================================================
+3. NGO (Non-Governmental Organisation)
+================================================================================
+
+NGOs can do everything a Citizen can, plus publish and manage their own
+water-related projects (cleanup drives, awareness campaigns, etc.).
+
+Features Available:
+  ✅ All Citizen Features — Dashboard, Station Map, Submit Report,
+                           All Reports, Alerts, Collaborations, Analytics,
+                           Predictive Alerts.
+  ✅ NGO Projects         — View all published NGO projects AND publish new
+                           projects with project name, contact email, and
+                           description. This page is exclusively visible in
+                           the navbar for NGO users.
+
+Restricted:
+  ❌ Cannot create/resolve alerts
+  ❌ Cannot verify or reject reports
+  ❌ Cannot add station readings
+  ❌ Cannot create/manage water stations
+  ❌ Cannot create collaborations
+
+
+================================================================================
+4. AUTHORITY (Government / Regulatory Body)
+================================================================================
+
+Authorities are official bodies responsible for water quality monitoring,
+enforcement, and inter-agency collaboration. They have the widest set of
+operational permissions.
+
+Features Available:
+  ✅ All Citizen Features — Dashboard, Station Map, Submit Report,
+                           All Reports, Alerts, Collaborations, Analytics,
+                           Predictive Alerts.
+  ✅ Verify Reports       — Navbar shows "Verify Reports" tab. Can update
+                           the status of pending reports to "verified" or
+                           "rejected".
+  ✅ Create Alerts        — Can manually create new water quality alerts
+                           with type (contamination, boil_notice, outage),
+                           severity, location, and coordinates.
+  ✅ Resolve Alerts       — Can mark active alerts as resolved.
+  ✅ Add Water Stations   — Can create new water monitoring stations with
+                           name, location, and coordinates.
+  ✅ Add Station Readings — Can submit new readings (pH, DO, turbidity,
+                           lead, arsenic) for any station. If a reading
+                           exceeds safety thresholds, an alert is AUTO-
+                           GENERATED by the system.
+  ✅ Manage Collaborations— Can create, update, and delete inter-agency
+                           collaboration projects.
+  ✅ Generate Predictive  — Can trigger the ML-based predictive alert
+     Alerts                 generation for water quality forecasting.
+
+Restricted:
+  ❌ Cannot publish NGO projects
+
+
+================================================================================
+5. ADMIN
+================================================================================
+
+Admins have the same permissions as Authority users. They serve as system
+administrators who can perform any operational action.
+
+Features Available:
+  ✅ All Authority Features — Everything listed under Authority, including
+                             creating alerts, resolving alerts, verifying
+                             reports, adding stations and readings, etc.
+  ✅ Verify Reports         — Same as Authority.
+  ✅ Create & Resolve Alerts— Same as Authority.
+  ✅ Add Stations & Readings— Same as Authority.
+
+Note: Admin does NOT see the NGO Projects tab (that is NGO-exclusive).
+
+
+================================================================================
+                            PERMISSION SUMMARY TABLE
+================================================================================
+
++---------------------------+---------+------+-----+-----------+-------+
+| Feature                   | Citizen | User | NGO | Authority | Admin |
++---------------------------+---------+------+-----+-----------+-------+
+| View Dashboard            |   ✅    |  ✅  | ✅  |    ✅     |  ✅   |
+| View Station Map          |   ✅    |  ✅  | ✅  |    ✅     |  ✅   |
+| Submit Report             |   ✅    |  ✅  | ✅  |    ✅     |  ✅   |
+| View All Reports          |   ✅    |  ✅  | ✅  |    ✅     |  ✅   |
+| View Alerts               |   ✅    |  ✅  | ✅  |    ✅     |  ✅   |
+| Report Issue on Alert     |   ✅    |  ✅  | ✅  |    ✅     |  ✅   |
+| View Collaborations       |   ✅    |  ✅  | ✅  |    ✅     |  ✅   |
+| View Analytics            |   ✅    |  ✅  | ✅  |    ✅     |  ✅   |
+| View Predictive Alerts    |   ✅    |  ✅  | ✅  |    ✅     |  ✅   |
+| Verify/Reject Reports     |   ❌    |  ❌  | ❌  |    ✅     |  ✅   |
+| Create Alerts             |   ❌    |  ❌  | ❌  |    ✅     |  ✅   |
+| Resolve Alerts            |   ❌    |  ❌  | ❌  |    ✅     |  ✅   |
+| Add Water Stations        |   ❌    |  ❌  | ❌  |    ✅     |  ✅   |
+| Add Station Readings      |   ❌    |  ❌  | ❌  |    ✅     |  ✅   |
+| Auto-Alert on Threshold   |   ❌    |  ❌  | ❌  |    ✅     |  ✅   |
+| Manage Collaborations     |   ❌    |  ❌  | ❌  |    ✅     |  ✅   |
+| Generate Predictive Alert |   ❌    |  ❌  | ❌  |    ✅     |  ❌   |
+| Publish NGO Projects      |   ❌    |  ❌  | ✅  |    ❌     |  ❌   |
+| View NGO Projects         |   ❌    |  ❌  | ✅  |    ❌     |  ❌   |
++---------------------------+---------+------+-----+-----------+-------+
+
+
+================================================================================
+                        WEBSITE FLOW DIAGRAM
+================================================================================
+
+                              ┌──────────────┐
+                              │   START      │
+                              └──────┬───────┘
+                                     │
+                                     ▼
+                         ┌───────────────────────┐
+                         │   Login / Register     │
+                         │   (email, password,    │
+                         │    role selection)      │
+                         └───────────┬───────────┘
+                                     │
+                              JWT Token Issued
+                                     │
+                                     ▼
+                         ┌───────────────────────┐
+                         │    DASHBOARD (Home)    │
+                         │  • Number Cards        │
+                         │  • Pie Charts          │
+                         │  • Box Plot            │
+                         │  • Latest Alerts       │
+                         │  • Latest Reports      │
+                         └───────────┬───────────┘
+                                     │
+              ┌──────────────────────┼──────────────────────┐
+              │                      │                      │
+              ▼                      ▼                      ▼
+    ┌─────────────────┐  ┌─────────────────────┐  ┌─────────────────┐
+    │  Station Map    │  │     Alerts Page      │  │    Analytics    │
+    │  • View all     │  │  • View alerts       │  │  • Select stn   │
+    │    stations on  │  │  • Filter by type    │  │  • Select param │
+    │    interactive  │  │  • Report Issue ───┐ │  │  • View trend   │
+    │    map          │  │  • Create alert *  │ │  │    chart with   │
+    │                 │  │  • Resolve alert * │ │  │    threshold    │
+    └─────────────────┘  └────────────────────┘ │  └─────────────────┘
+                                                │
+              ┌─────────────────────────────────┘
+              │
+              ▼
+    ┌─────────────────────┐        ┌─────────────────────┐
+    │   Submit Report     │        │   All Reports       │
+    │  • Location         │        │  • View all reports  │
+    │  • Description      │───────▶│  • Filter by status  │
+    │  • Water source     │ After  │  • Verify/Reject *   │
+    │  • Station (dropdown│ submit └─────────────────────┘
+    │  • Photo upload     │
+    │  • Link to alert    │
+    └─────────────────────┘
+
+    ┌─────────────────────┐        ┌─────────────────────┐
+    │  Collaborations     │        │  NGO Projects       │
+    │  • View projects    │        │  • View projects    │
+    │  • Create *         │        │  • Publish new **   │
+    │  • Update/Delete *  │        │                     │
+    └─────────────────────┘        └─────────────────────┘
+
+    ┌─────────────────────┐
+    │  Predictive Alerts  │
+    │  • View predictions │
+    │  • Generate new *   │
+    └─────────────────────┘
+
+              │
+              ▼
+        ┌───────────┐
+        │  LOGOUT   │
+        └───────────┘
+
+
+    LEGEND:
+    ───────
+    *   = Authority / Admin only
+    **  = NGO only
+    All unmarked features are available to ALL logged-in users
+
+
+================================================================================
+                    AUTO-ALERT GENERATION FLOW
+================================================================================
+
+    Authority adds Station Reading
+              │
+              ▼
+    ┌─────────────────────────────┐
+    │ System checks reading value │
+    │ against thresholds:         │
+    │  • pH     > 8.5 or < 6.5   │
+    │  • DO     < 4.0 mg/L       │
+    │  • Turbidity > 5.0 NTU     │
+    │  • Lead   > 0.015 mg/L     │
+    │  • Arsenic > 0.01 mg/L     │
+    └──────────────┬──────────────┘
+                   │
+          ┌────────┴────────┐
+          │                 │
+     Threshold         Threshold
+     NOT exceeded      EXCEEDED
+          │                 │
+          ▼                 ▼
+    ┌───────────┐   ┌───────────────────────┐
+    │ No action │   │ Auto-create Alert     │
+    │           │   │ • type: contamination │
+    │           │   │ • severity: medium/   │
+    │           │   │   high (metals=high)  │
+    │           │   │ • linked to station   │
+    └───────────┘   └───────────────────────┘
+
+
+================================================================================
+                     ALERT → REPORT LINKING FLOW
+================================================================================
+
+    User views Alert
+          │
+          ▼
+    Clicks "Report Issue"
+          │
+          ▼
+    ┌─────────────────────┐
+    │ Submit Report form  │
+    │ pre-filled with     │
+    │ alert_id            │
+    └──────────┬──────────┘
+               │
+          Report created
+               │
+               ▼
+    ┌─────────────────────────────┐
+    │ Bidirectional link created: │
+    │ • Report.alert_id = alert   │
+    │ • Alert.report_id = report  │
+    └─────────────────────────────┘
+
+
+================================================================================
+                          TEST CREDENTIALS
+================================================================================
+
+    Role        Email                     Password
+    ─────────   ────────────────────────  ────────────
+    Citizen     citizen@example.com       password123
+    User        user@example.com          password123
+    NGO         ngo@example.com           password123
+    Authority   authority@example.com     password123
+    Admin       admin@example.com         password123
+
+================================================================================

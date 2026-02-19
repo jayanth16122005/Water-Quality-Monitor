@@ -7,7 +7,7 @@ function Login({ onLogin }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("user");
+  const [role, setRole] = useState("citizen");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -25,7 +25,7 @@ function Login({ onLogin }) {
         });
 
         const data = await res.json();
-        
+
         if (!res.ok) {
           throw new Error(data.detail || "Invalid credentials");
         }
@@ -39,7 +39,7 @@ function Login({ onLogin }) {
         });
 
         const user = await meRes.json();
-        
+
         if (!meRes.ok) {
           localStorage.removeItem("token");
           throw new Error(user.detail || "Failed to fetch user");
@@ -71,7 +71,7 @@ function Login({ onLogin }) {
         setName("");
         setEmail("");
         setPassword("");
-        setRole("user");
+        setRole("citizen");
       }
     } catch (err) {
       setError(err.message || "An error occurred");
@@ -83,146 +83,296 @@ function Login({ onLogin }) {
 
   return (
     <div style={pageStyle}>
-      <div style={cardStyle}>
-        <h2 style={{ color: "#0f766e", marginBottom: "20px" }}>
-          {mode === "login" ? "🔐 Login" : "📝 Register"}
-        </h2>
+      {/* Ambient glow blobs */}
+      <div style={glowBlob1} />
+      <div style={glowBlob2} />
 
-        <form onSubmit={handleSubmit}>
+      <div style={cardStyle}>
+        {/* Logo */}
+        <div style={logoStyle}>💧</div>
+        <h1 style={titleStyle}>WaterWatch</h1>
+        <p style={subtitleStyle}>
+          {mode === "login" ? "Sign in to your account" : "Create a new account"}
+        </p>
+
+        <form onSubmit={handleSubmit} style={{ width: "100%" }}>
           {mode === "register" && (
             <>
-              <input
-                placeholder="Full Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                style={inputStyle}
-                required
-              />
+              <div style={fieldGroupStyle}>
+                <label style={labelStyle}>Full Name</label>
+                <input
+                  placeholder="Enter your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  style={inputStyle}
+                  required
+                />
+              </div>
 
-              <select
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                style={inputStyle}
-              >
-                <option value="user">👤 Regular User</option>
-                <option value="authority">👮 Authority/Admin</option>
-              </select>
+              <div style={fieldGroupStyle}>
+                <label style={labelStyle}>Role</label>
+                <select
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  style={inputStyle}
+                >
+                  <option value="citizen">👤 Citizen</option>
+                  <option value="ngo">🏛️ NGO Member</option>
+                  <option value="authority">👮 Authority</option>
+                  <option value="admin">🔧 Admin</option>
+                </select>
+              </div>
             </>
           )}
 
-          <input
-            placeholder="Email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            style={inputStyle}
-            required
-          />
+          <div style={fieldGroupStyle}>
+            <label style={labelStyle}>Email</label>
+            <input
+              placeholder="you@example.com"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              style={inputStyle}
+              required
+            />
+          </div>
 
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            style={inputStyle}
-            required
-          />
+          <div style={fieldGroupStyle}>
+            <label style={labelStyle}>Password</label>
+            <input
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={inputStyle}
+              required
+            />
+          </div>
 
           {error && (
-            <p style={{ color: "#dc2626", fontSize: "14px", marginBottom: "12px" }}>
-              ❌ {error}
-            </p>
+            <div style={errorStyle}>
+              <span style={{ marginRight: "6px" }}>⚠️</span> {error}
+            </div>
           )}
 
-          <button 
-            type="submit" 
-            style={{...buttonStyle, opacity: loading ? 0.6 : 1, cursor: loading ? "not-allowed" : "pointer"}}
+          <button
+            type="submit"
+            style={{
+              ...buttonStyle,
+              opacity: loading ? 0.6 : 1,
+              cursor: loading ? "not-allowed" : "pointer",
+            }}
             disabled={loading}
           >
-            {loading ? "Loading..." : (mode === "login" ? "Login" : "Register")}
+            {loading ? (
+              <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+                <span style={{ animation: "pulse 1s infinite" }}>⏳</span> Processing...
+              </span>
+            ) : (
+              mode === "login" ? "Sign In →" : "Create Account →"
+            )}
           </button>
         </form>
 
-        <p style={{ marginTop: "20px", color: "#666", fontSize: "14px" }}>
+        <div style={dividerStyle}>
+          <span style={dividerTextStyle}>or</span>
+        </div>
+
+        <p style={switchStyle}>
           {mode === "login" ? (
             <>
               Don't have an account?{" "}
               <span style={linkStyle} onClick={() => { setMode("register"); setError(""); }}>
-                Register here
+                Register
               </span>
             </>
           ) : (
             <>
               Already have an account?{" "}
               <span style={linkStyle} onClick={() => { setMode("login"); setError(""); }}>
-                Login here
+                Sign in
               </span>
             </>
           )}
         </p>
 
-        {mode === "register" && (
-          <p style={{ marginTop: "16px", padding: "12px", background: "#ecfdf5", borderRadius: "6px", fontSize: "12px", color: "#0f766e" }}>
-            💡 Test Credentials:<br/>
-            User: user@example.com / password123<br/>
-            Authority: authority@example.com / password123
-          </p>
+        {mode === "login" && (
+          <div style={credentialsStyle}>
+            <div style={{ fontWeight: 600, marginBottom: "6px", color: "var(--accent)" }}>💡 Demo Credentials</div>
+            <div>User: user@example.com / password123</div>
+            <div>Authority: authority@example.com / password123</div>
+          </div>
         )}
       </div>
     </div>
   );
 }
 
+/* --- Styles --- */
 const pageStyle = {
   width: "100vw",
   height: "100vh",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  background: "linear-gradient(135deg, #0f766e 0%, #1e7e74 50%, #0d9488 100%)",
+  background: "var(--bg-primary)",
+  position: "relative",
+  overflow: "hidden",
+};
+
+const glowBlob1 = {
+  position: "absolute",
+  top: "-20%",
+  left: "-10%",
+  width: "500px",
+  height: "500px",
+  borderRadius: "50%",
+  background: "radial-gradient(circle, rgba(6,214,160,0.12) 0%, transparent 70%)",
+  pointerEvents: "none",
+};
+
+const glowBlob2 = {
+  position: "absolute",
+  bottom: "-20%",
+  right: "-10%",
+  width: "400px",
+  height: "400px",
+  borderRadius: "50%",
+  background: "radial-gradient(circle, rgba(99,102,241,0.1) 0%, transparent 70%)",
+  pointerEvents: "none",
 };
 
 const cardStyle = {
-  width: "360px",
-  background: "white",
-  padding: "30px",
-  borderRadius: "12px",
+  width: "400px",
+  maxWidth: "90vw",
+  background: "rgba(17, 24, 39, 0.8)",
+  backdropFilter: "blur(20px)",
+  WebkitBackdropFilter: "blur(20px)",
+  padding: "36px 32px",
+  borderRadius: "16px",
   textAlign: "center",
-  boxShadow: "0 20px 25px rgba(15, 118, 110, 0.15)",
-  border: "1px solid #ecfdf5",
+  border: "1px solid rgba(255,255,255,0.06)",
+  boxShadow: "0 24px 48px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.03)",
+  position: "relative",
+  zIndex: 1,
+  animation: "fadeInUp 0.5s ease",
+};
+
+const logoStyle = {
+  fontSize: "48px",
+  marginBottom: "8px",
+  filter: "drop-shadow(0 0 12px rgba(6,214,160,0.4))",
+};
+
+const titleStyle = {
+  color: "var(--text-primary)",
+  fontSize: "26px",
+  fontWeight: "800",
+  margin: "0 0 4px",
+  letterSpacing: "-0.02em",
+};
+
+const subtitleStyle = {
+  color: "var(--text-muted)",
+  fontSize: "14px",
+  marginBottom: "24px",
+};
+
+const fieldGroupStyle = {
+  textAlign: "left",
+  marginBottom: "16px",
+};
+
+const labelStyle = {
+  display: "block",
+  fontSize: "12px",
+  fontWeight: "600",
+  color: "var(--text-secondary)",
+  marginBottom: "6px",
+  textTransform: "uppercase",
+  letterSpacing: "0.05em",
 };
 
 const inputStyle = {
   width: "100%",
-  padding: "12px",
-  marginBottom: "12px",
-  borderRadius: "6px",
-  border: "1px solid #d1d5db",
+  padding: "12px 14px",
+  borderRadius: "8px",
+  border: "1px solid rgba(255,255,255,0.08)",
   fontSize: "14px",
   boxSizing: "border-box",
-  transition: "border-color 0.2s ease",
+  background: "rgba(255,255,255,0.04)",
+  color: "var(--text-primary)",
+  transition: "border-color 0.25s ease, box-shadow 0.25s ease",
+  outline: "none",
 };
 
 const buttonStyle = {
   width: "100%",
-  padding: "12px",
-  borderRadius: "8px",
+  padding: "13px",
+  borderRadius: "10px",
   border: "none",
-  background: "linear-gradient(135deg, #0d9488 0%, #10b981 100%)",
-  color: "white",
-  fontWeight: "bold",
+  background: "linear-gradient(135deg, #059669 0%, #06d6a0 100%)",
+  color: "#fff",
+  fontWeight: "700",
   cursor: "pointer",
   transition: "all 0.3s ease",
-  boxShadow: "0 4px 12px rgba(13, 148, 136, 0.3)",
-  fontSize: "16px",
+  boxShadow: "0 4px 16px rgba(6, 214, 160, 0.3)",
+  fontSize: "15px",
+  letterSpacing: "0.01em",
+  marginTop: "4px",
+};
+
+const errorStyle = {
+  background: "rgba(239,68,68,0.1)",
+  border: "1px solid rgba(239,68,68,0.2)",
+  borderRadius: "8px",
+  padding: "10px 14px",
+  color: "#f87171",
+  fontSize: "13px",
+  marginBottom: "14px",
+  textAlign: "left",
+};
+
+const dividerStyle = {
+  position: "relative",
+  margin: "20px 0",
+  borderTop: "1px solid rgba(255,255,255,0.06)",
+};
+
+const dividerTextStyle = {
+  position: "absolute",
+  top: "-10px",
+  left: "50%",
+  transform: "translateX(-50%)",
+  background: "rgba(17, 24, 39, 0.8)",
+  padding: "0 12px",
+  color: "var(--text-muted)",
+  fontSize: "12px",
+};
+
+const switchStyle = {
+  color: "var(--text-muted)",
+  fontSize: "13px",
+  margin: 0,
 };
 
 const linkStyle = {
-  color: "#0d9488",
+  color: "var(--accent)",
   cursor: "pointer",
   fontWeight: "600",
   transition: "color 0.2s ease",
-  textDecoration: "underline",
+};
+
+const credentialsStyle = {
+  marginTop: "16px",
+  padding: "12px 16px",
+  background: "rgba(6,214,160,0.06)",
+  border: "1px solid rgba(6,214,160,0.12)",
+  borderRadius: "8px",
+  fontSize: "11px",
+  color: "var(--text-secondary)",
+  textAlign: "left",
+  lineHeight: "1.7",
 };
 
 export default Login;

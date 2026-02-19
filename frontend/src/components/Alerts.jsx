@@ -1,13 +1,31 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 const API = "http://localhost:8000";
 
-function Alerts() {
+function Alerts({ onReportAlert }) {
   const [alerts, setAlerts] = useState([]);
   const [filteredAlerts, setFilteredAlerts] = useState([]);
   const [filterType, setFilterType] = useState("all");
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    type: "boil_notice",
+    message: "",
+    location: "",
+    latitude: "",
+    longitude: "",
+    severity: "medium",
+  });
+  const [creating, setCreating] = useState(false);
+  const [notification, setNotification] = useState(null); // { msg, type: 'success'|'error' }
+  const notifTimerRef = useRef(null);
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user"));
+
+  const showNotification = (msg, type = "success") => {
+    setNotification({ msg, type });
+    if (notifTimerRef.current) clearTimeout(notifTimerRef.current);
+    notifTimerRef.current = setTimeout(() => setNotification(null), 4000);
+  };
 
   const fetchAlerts = async () => {
     try {
@@ -32,7 +50,7 @@ function Alerts() {
 
   useEffect(() => {
     fetchAlerts();
-    const interval = setInterval(fetchAlerts, 30000); // Refresh every 30 seconds
+    const interval = setInterval(fetchAlerts, 30000);
     return () => clearInterval(interval);
   }, []);
 
@@ -55,14 +73,50 @@ function Alerts() {
     }
   };
 
+  const handleCreateAlert = async (e) => {
+    e.preventDefault();
+    setCreating(true);
+    try {
+      const res = await fetch(`${API}/alerts/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(createForm),
+      });
+
+      if (res.ok) {
+        setShowCreateForm(false);
+        setCreateForm({
+          type: "boil_notice",
+          message: "",
+          location: "",
+          latitude: "",
+          longitude: "",
+          severity: "medium",
+        });
+        fetchAlerts();
+        showNotification("✅ Alert created successfully!", "success");
+      } else {
+        const data = await res.json().catch(() => ({}));
+        showNotification("❌ " + (data.detail || "Failed to create alert"), "error");
+      }
+    } catch (err) {
+      showNotification("❌ Error: " + err.message + " — Is the backend running?", "error");
+    } finally {
+      setCreating(false);
+    }
+  };
+
   const getSeverityColor = (severity) => {
     const colors = {
-      low: "#10b981",
+      low: "#06d6a0",
       medium: "#f59e0b",
       high: "#ef4444",
       critical: "#dc2626",
     };
-    return colors[severity] || "#0d9488";
+    return colors[severity] || "#06d6a0";
   };
 
   const getAlertIcon = (type) => {
@@ -74,175 +128,272 @@ function Alerts() {
     return icons[type] || "📢";
   };
 
-  const alertContainerStyle = {
-    padding: "20px",
-    minHeight: "100vh",
-    background: "linear-gradient(135deg, #f0f9ff 0%, #ecfdf5 100%)",
+  const inputStyle = {
+    width: "100%",
+    padding: "10px 14px",
+    margin: "6px 0 14px 0",
+    border: "1px solid var(--border-subtle)",
+    borderRadius: "8px",
+    fontSize: "13px",
+    boxSizing: "border-box",
+    background: "var(--bg-glass)",
+    color: "var(--text-primary)",
+    transition: "border-color 0.25s ease, box-shadow 0.25s ease",
+    outline: "none",
   };
 
-  const headerStyle = {
-    marginBottom: "20px",
-    paddingLeft: "12px",
-    borderLeft: "4px solid #0d9488",
-    color: "#0f766e",
-    fontWeight: "800",
-    fontSize: "28px",
+  const labelStyle = {
+    display: "block",
+    fontWeight: "600",
+    color: "var(--text-secondary)",
+    fontSize: "12px",
+    textTransform: "uppercase",
+    letterSpacing: "0.04em",
   };
 
-  const filterButtonsStyle = {
-    display: "flex",
-    gap: "10px",
-    marginBottom: "20px",
-    flexWrap: "wrap",
-  };
-
-  const filterButtonStyle = (isActive) => ({
+  const filterBtnStyle = (isActive) => ({
     padding: "8px 16px",
-    background: isActive ? "linear-gradient(135deg, #0d9488 0%, #10b981 100%)" : "rgba(13, 148, 136, 0.1)",
-    color: isActive ? "white" : "#0d9488",
-    border: `2px solid ${isActive ? "#0d9488" : "#d1fae5"}`,
-    borderRadius: "6px",
+    background: isActive ? "linear-gradient(135deg, var(--accent-dark), var(--accent))" : "var(--bg-glass)",
+    color: isActive ? "white" : "var(--text-secondary)",
+    border: `1px solid ${isActive ? "var(--accent-dark)" : "var(--border-subtle)"}`,
+    borderRadius: "8px",
     cursor: "pointer",
     fontWeight: "600",
-    transition: "all 0.3s ease",
-  });
-
-  const alertCardStyle = {
-    background: "white",
-    border: "1px solid #d1fae5",
-    borderRadius: "8px",
-    padding: "16px",
-    marginBottom: "16px",
-    boxShadow: "0 2px 8px rgba(13, 148, 136, 0.08)",
-    borderLeft: `4px solid ${getSeverityColor(alerts.find((a) => a.id === alerts[0]?.id)?.severity || "medium")}`,
-  };
-
-  const alertTitleStyle = {
-    fontSize: "18px",
-    fontWeight: "700",
-    marginBottom: "8px",
-    color: "#0f766e",
-  };
-
-  const alertMessageStyle = {
-    fontSize: "14px",
-    color: "#475569",
-    marginBottom: "12px",
-    lineHeight: "1.6",
-  };
-
-  const badgeStyle = (severity) => ({
-    display: "inline-block",
-    padding: "4px 12px",
-    background: getSeverityColor(severity),
-    color: "white",
-    borderRadius: "4px",
     fontSize: "12px",
-    fontWeight: "600",
-    marginRight: "8px",
+    transition: "all 0.25s ease",
+    boxShadow: isActive ? "0 4px 12px rgba(6,214,160,0.2)" : "none",
+    transform: "none",
+    filter: "none",
   });
 
   return (
-    <div style={alertContainerStyle}>
-      <h2 style={headerStyle}>🚨 Water Quality Alerts</h2>
+    <div className="page-container">
+      <h2 className="page-header">
+        <span>🚨</span> Water Quality Alerts
+      </h2>
 
-      <div style={filterButtonsStyle}>
-        <button
-          style={filterButtonStyle(filterType === "all")}
-          onClick={() => handleFilterChange("all")}
-        >
-          All Alerts
-        </button>
-        <button
-          style={filterButtonStyle(filterType === "boil_notice")}
-          onClick={() => handleFilterChange("boil_notice")}
-        >
-          Boil Notices
-        </button>
-        <button
-          style={filterButtonStyle(filterType === "contamination")}
-          onClick={() => handleFilterChange("contamination")}
-        >
-          Contamination
-        </button>
-        <button
-          style={filterButtonStyle(filterType === "outage")}
-          onClick={() => handleFilterChange("outage")}
-        >
-          Outages
-        </button>
+      {/* Inline Notification Banner */}
+      {notification && (
+        <div style={{
+          padding: "12px 20px",
+          marginBottom: "16px",
+          borderRadius: "10px",
+          fontWeight: "600",
+          fontSize: "14px",
+          background: notification.type === "success"
+            ? "linear-gradient(135deg, rgba(6,214,160,0.2), rgba(6,214,160,0.1))"
+            : "linear-gradient(135deg, rgba(239,68,68,0.2), rgba(239,68,68,0.1))",
+          border: `1px solid ${notification.type === "success" ? "rgba(6,214,160,0.5)" : "rgba(239,68,68,0.5)"}`,
+          color: notification.type === "success" ? "#06d6a0" : "#ef4444",
+          animation: "fadeInUp 0.3s ease",
+        }}>
+          {notification.msg}
+        </div>
+      )}
+
+      {/* Create Alert Button */}
+      {(user?.role === "authority" || user?.role === "admin") && (
+        <div style={{ marginBottom: "16px" }}>
+          <button
+            onClick={() => setShowCreateForm(!showCreateForm)}
+            className="btn-primary"
+            style={{ fontSize: "13px" }}
+          >
+            {showCreateForm ? "Cancel" : "➕ Create New Alert"}
+          </button>
+        </div>
+      )}
+
+      {/* Create Form */}
+      {showCreateForm && (user?.role === "authority" || user?.role === "admin") && (
+        <form onSubmit={handleCreateAlert} className="glass-card" style={{ maxWidth: "600px", padding: "24px", marginBottom: "24px", animation: "slideDown 0.3s ease" }}>
+          <h3 style={{ color: "var(--text-primary)", marginBottom: "16px", marginTop: "0" }}>
+            🚨 Create New Alert
+          </h3>
+
+          <label style={labelStyle}>Alert Type *</label>
+          <select
+            value={createForm.type}
+            onChange={(e) => setCreateForm({ ...createForm, type: e.target.value })}
+            style={inputStyle}
+            required
+          >
+            <option value="boil_notice">🔥 Boil Notice</option>
+            <option value="contamination">⚠️ Contamination</option>
+            <option value="outage">❌ Outage</option>
+          </select>
+
+          <label style={labelStyle}>Message *</label>
+          <textarea
+            value={createForm.message}
+            onChange={(e) => setCreateForm({ ...createForm, message: e.target.value })}
+            placeholder="Describe the alert details..."
+            style={{ ...inputStyle, minHeight: "80px", resize: "vertical" }}
+            required
+          />
+
+          <label style={labelStyle}>Location *</label>
+          <input
+            value={createForm.location}
+            onChange={(e) => setCreateForm({ ...createForm, location: e.target.value })}
+            placeholder="e.g., Yamuna River, Delhi"
+            style={inputStyle}
+            required
+          />
+
+          <div style={{ display: "flex", gap: "12px" }}>
+            <div style={{ flex: 1 }}>
+              <label style={labelStyle}>Latitude</label>
+              <input
+                value={createForm.latitude}
+                onChange={(e) => setCreateForm({ ...createForm, latitude: e.target.value })}
+                placeholder="e.g., 28.6139"
+                style={inputStyle}
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={labelStyle}>Longitude</label>
+              <input
+                value={createForm.longitude}
+                onChange={(e) => setCreateForm({ ...createForm, longitude: e.target.value })}
+                placeholder="e.g., 77.2090"
+                style={inputStyle}
+              />
+            </div>
+          </div>
+
+          <label style={labelStyle}>Severity *</label>
+          <select
+            value={createForm.severity}
+            onChange={(e) => setCreateForm({ ...createForm, severity: e.target.value })}
+            style={inputStyle}
+            required
+          >
+            <option value="low">🟢 Low</option>
+            <option value="medium">🟡 Medium</option>
+            <option value="high">🟠 High</option>
+            <option value="critical">🔴 Critical</option>
+          </select>
+
+          <button
+            type="submit"
+            disabled={creating}
+            className="btn-primary"
+            style={{
+              width: "100%",
+              marginTop: "8px",
+              opacity: creating ? 0.6 : 1,
+            }}
+          >
+            {creating ? "Creating..." : "🚨 Create Alert"}
+          </button>
+        </form>
+      )}
+
+      {/* Filter Buttons */}
+      <div style={{ display: "flex", gap: "8px", marginBottom: "20px", flexWrap: "wrap" }}>
+        {[
+          { key: "all", label: "All" },
+          { key: "boil_notice", label: "Boil Notices" },
+          { key: "contamination", label: "Contamination" },
+          { key: "outage", label: "Outages" },
+        ].map((f) => (
+          <button
+            key={f.key}
+            style={filterBtnStyle(filterType === f.key)}
+            onClick={() => handleFilterChange(f.key)}
+          >
+            {f.label}
+          </button>
+        ))}
       </div>
 
+      {/* Alert Cards */}
       {filteredAlerts.length === 0 ? (
-        <div
-          style={{
-            textAlign: "center",
-            padding: "40px",
-            background: "white",
-            borderRadius: "8px",
-            border: "1px solid #d1fae5",
-            color: "#0f766e",
-          }}
-        >
-          <p style={{ fontSize: "16px", fontWeight: "600" }}>✓ No active alerts</p>
-          <p style={{ fontSize: "14px", color: "#64748b" }}>
+        <div className="glass-card" style={{ textAlign: "center", padding: "40px" }}>
+          <p style={{ fontSize: "15px", fontWeight: "600", color: "var(--accent)" }}>✓ No active alerts</p>
+          <p style={{ fontSize: "13px", color: "var(--text-muted)", marginTop: "4px" }}>
             All water quality parameters are within safe limits
           </p>
         </div>
       ) : (
-        filteredAlerts.map((alert) => (
-          <div key={alert.id} style={alertCardStyle}>
-            <div style={{ display: "flex", alignItems: "center", marginBottom: "12px" }}>
-              <span style={{ fontSize: "24px", marginRight: "12px" }}>{getAlertIcon(alert.type)}</span>
-              <div>
-                <div style={alertTitleStyle}>{alert.location}</div>
-                <div>
-                  <span style={badgeStyle(alert.severity)}>
-                    {alert.severity.toUpperCase()}
+        filteredAlerts.map((al, idx) => (
+          <div
+            key={al.id}
+            className="glass-card"
+            style={{
+              padding: "18px",
+              marginBottom: "12px",
+              borderLeft: `3px solid ${getSeverityColor(al.severity)}`,
+              animation: `fadeInUp 0.3s ease ${idx * 0.05}s both`,
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", marginBottom: "12px", gap: "12px" }}>
+              <span style={{ fontSize: "26px" }}>{getAlertIcon(al.type)}</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: "16px", fontWeight: "700", color: "var(--text-primary)" }}>{al.location}</div>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center", marginTop: "4px" }}>
+                  <span style={{
+                    background: getSeverityColor(al.severity),
+                    color: "#fff",
+                    padding: "2px 10px",
+                    borderRadius: "12px",
+                    fontSize: "10px",
+                    fontWeight: "700",
+                    letterSpacing: "0.04em",
+                    textTransform: "uppercase",
+                  }}>
+                    {al.severity.toUpperCase()}
                   </span>
-                  <span
-                    style={{
-                      fontSize: "12px",
-                      color: "#64748b",
-                      fontWeight: "500",
-                    }}
-                  >
-                    {new Date(alert.issued_at).toLocaleString()}
+                  <span style={{ fontSize: "11px", color: "var(--text-muted)" }}>
+                    {new Date(al.issued_at).toLocaleString()}
                   </span>
                 </div>
               </div>
             </div>
 
-            <p style={alertMessageStyle}>{alert.message}</p>
+            <p style={{ fontSize: "14px", color: "var(--text-secondary)", marginBottom: "12px", lineHeight: "1.6" }}>
+              {al.message}
+            </p>
 
-            {alert.latitude && alert.longitude && (
-              <p
-                style={{
-                  fontSize: "12px",
-                  color: "#0d9488",
-                  marginBottom: "12px",
-                }}
-              >
-                📍 Lat: {alert.latitude}, Lon: {alert.longitude}
+            {al.latitude && al.longitude && (
+              <p style={{ fontSize: "12px", color: "var(--accent)", marginBottom: "12px" }}>
+                📍 Lat: {al.latitude}, Lon: {al.longitude}
               </p>
             )}
 
-            {user?.role === "authority" && alert.is_active === "true" && (
-              <button
-                onClick={() => resolveAlert(alert.id)}
-                style={{
-                  padding: "8px 16px",
-                  background: "#ef4444",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "6px",
-                  cursor: "pointer",
-                  fontWeight: "600",
-                }}
-              >
-                Mark as Resolved
-              </button>
-            )}
+            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+              {(user?.role === "authority" || user?.role === "admin") && al.is_active === "true" && (
+                <button
+                  onClick={() => resolveAlert(al.id)}
+                  className="btn-danger"
+                  style={{ fontSize: "12px", padding: "7px 14px" }}
+                >
+                  Mark as Resolved
+                </button>
+              )}
+
+              {!al.report_id && onReportAlert && (
+                <button
+                  onClick={() => onReportAlert(al.id)}
+                  style={{
+                    padding: "7px 14px",
+                    background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    fontWeight: "600",
+                    fontSize: "12px",
+                    boxShadow: "0 4px 12px rgba(99,102,241,0.25)",
+                    transform: "none",
+                    filter: "none",
+                  }}
+                >
+                  📝 Report Issue
+                </button>
+              )}
+            </div>
           </div>
         ))
       )}

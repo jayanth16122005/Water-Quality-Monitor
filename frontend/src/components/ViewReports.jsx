@@ -41,80 +41,104 @@ function ViewReports({ filterType = "pending" }) {
     }
   };
 
+  const statusColor = {
+    pending: "#f59e0b",
+    verified: "#06d6a0",
+    rejected: "#ef4444",
+  };
+
+  const filteredReports = reports.filter(r => {
+    if (filterType === "verified-rejected") {
+      return r.status === "verified" || r.status === "rejected";
+    } else if (filterType === "pending") {
+      if (user?.role === "authority") {
+        return r.status === "pending";
+      }
+      return true;
+    }
+    return true;
+  });
+
   return (
-    <div style={{ padding: "20px" }}>
-      <h2 style={{ color: "#0f766e", borderLeft: "4px solid #0d9488", paddingLeft: "12px", marginBottom: "20px" }}>
-        📊 {
-          filterType === "pending" 
-            ? (user?.role === "authority" ? "Pending Reports for Verification" : "My Submitted Reports")
-            : "All Verified & Rejected Reports"
+    <div className="page-container">
+      <h2 className="page-header">
+        <span>📊</span>{" "}
+        {filterType === "pending"
+          ? (user?.role === "authority" ? "Pending Reports for Verification" : "My Submitted Reports")
+          : "All Verified & Rejected Reports"
         }
       </h2>
 
-      {reports
-        .filter(r => {
-          if (filterType === "verified-rejected") {
-            return r.status === "verified" || r.status === "rejected";
-          } else if (filterType === "pending") {
-            if (user?.role === "authority") {
-              return r.status === "pending";
-            }
-            return true;
-          }
-          return true;
-        })
-        .map((report) => (
-        <div
-          key={report.id}
-          style={{
-            border: "1px solid #d1fae5",
-            padding: "16px",
-            marginBottom: "16px",
-            borderRadius: "8px",
-            backgroundColor: "#ecfdf5",
-            boxShadow: "0 2px 8px rgba(13, 148, 136, 0.08)",
-          }}
-        >
-          <p><strong>Location:</strong> {report.location}</p>
-          <p><strong>Description:</strong> {report.description}</p>
-          <p><strong>Water Source:</strong> {report.water_source}</p>
-          <p><strong>Status:</strong> {report.status}</p>
-
-          {user?.role === "authority" && filterType === "pending" && report.status === "pending" && (
-            <>
-              <button
-                onClick={() => updateStatus(report.id, "verified")}
-                style={{
-                  padding: "8px 16px",
-                  background: "linear-gradient(135deg, #0d9488 0%, #10b981 100%)",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "6px",
-                  cursor: "pointer",
-                  fontWeight: "600",
-                  marginRight: "10px",
-                }}
-              >
-                ✓ Verify
-              </button>
-              <button
-                onClick={() => updateStatus(report.id, "rejected")}
-                style={{
-                  padding: "8px 16px",
-                  background: "#ef4444",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "6px",
-                  cursor: "pointer",
-                  fontWeight: "600",
-                }}
-              >
-                ✕ Reject
-              </button>
-            </>
-          )}
+      {filteredReports.length === 0 ? (
+        <div className="glass-card" style={{ textAlign: "center", padding: "40px" }}>
+          <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>No reports found</p>
         </div>
-      ))}
+      ) : (
+        <div style={{ display: "grid", gap: "14px" }}>
+          {filteredReports.map((report, idx) => (
+            <div
+              key={report.id}
+              className="glass-card"
+              style={{
+                padding: "18px",
+                borderLeft: `3px solid ${statusColor[report.status] || "var(--accent)"}`,
+                animation: `fadeInUp 0.3s ease ${idx * 0.05}s both`,
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "8px" }}>
+                <h3 style={{ color: "var(--text-primary)", fontSize: "15px", fontWeight: "700", margin: 0 }}>
+                  📍 {report.location}
+                </h3>
+                <span style={{
+                  background: statusColor[report.status],
+                  color: "#fff",
+                  padding: "3px 10px",
+                  borderRadius: "12px",
+                  fontSize: "10px",
+                  fontWeight: "700",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.04em",
+                }}>
+                  {report.status}
+                </span>
+              </div>
+
+              <p style={{ color: "var(--text-secondary)", fontSize: "13px", marginBottom: "8px", lineHeight: "1.6" }}>
+                {report.description}
+              </p>
+
+              <p style={{ color: "var(--text-muted)", fontSize: "12px", margin: "4px 0" }}>
+                💧 <strong>Water Source:</strong> {report.water_source}
+              </p>
+
+              {report.created_at && (
+                <p style={{ color: "var(--text-muted)", fontSize: "11px", margin: "4px 0" }}>
+                  🕐 {new Date(report.created_at).toLocaleString()}
+                </p>
+              )}
+
+              {user?.role === "authority" && filterType === "pending" && report.status === "pending" && (
+                <div style={{ display: "flex", gap: "8px", marginTop: "12px" }}>
+                  <button
+                    onClick={() => updateStatus(report.id, "verified")}
+                    className="btn-primary"
+                    style={{ fontSize: "12px", padding: "7px 14px" }}
+                  >
+                    ✓ Verify
+                  </button>
+                  <button
+                    onClick={() => updateStatus(report.id, "rejected")}
+                    className="btn-danger"
+                    style={{ fontSize: "12px", padding: "7px 14px" }}
+                  >
+                    ✕ Reject
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

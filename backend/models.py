@@ -8,8 +8,11 @@ import enum
 
 
 class UserRole(enum.Enum):
+    citizen = "citizen"
     user = "user"
+    ngo = "ngo"
     authority = "authority"
+    admin = "admin"
 
 
 class User(Base):
@@ -20,7 +23,8 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     password = Column(String, nullable=False)
 
-    role = Column(Enum(UserRole), default=UserRole.user, nullable=False)
+    role = Column(Enum(UserRole), default=UserRole.citizen, nullable=False)
+    location = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
@@ -41,6 +45,8 @@ class Report(Base):
     longitude = Column(String, nullable=True)
     description = Column(Text, nullable=False)
     water_source = Column(String, nullable=False)
+    station_name = Column(String, nullable=True)
+    alert_id = Column(Integer, ForeignKey("alerts.id"), nullable=True)
     status = Column(Enum(ReportStatus), default=ReportStatus.pending)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
@@ -82,6 +88,8 @@ class Alert(Base):
     latitude = Column(String, nullable=True)
     longitude = Column(String, nullable=True)
     severity = Column(String, default="medium")  # low, medium, high, critical
+    station_id = Column(Integer, ForeignKey("water_stations.id"), nullable=True)
+    report_id = Column(Integer, ForeignKey("reports.id"), nullable=True)
     issued_at = Column(DateTime(timezone=True), server_default=func.now())
     resolved_at = Column(DateTime(timezone=True), nullable=True)
     is_active = Column(String, default="true")
@@ -98,4 +106,15 @@ class Collaboration(Base):
     location = Column(String, nullable=False)
     description = Column(Text, nullable=True)
     website = Column(String, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class NgoProject(Base):
+    __tablename__ = "ngo_projects"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    project_name = Column(String, nullable=False)
+    contact_email = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

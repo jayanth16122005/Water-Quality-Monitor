@@ -19,12 +19,18 @@ def create_alert(
     if user.role.value != "authority":
         raise HTTPException(status_code=403, detail="Only authorities can create alerts")
     
+    def _to_float_or_none(v):
+        try:
+            return float(v) if v not in (None, "", "null") else None
+        except (ValueError, TypeError):
+            return None
+
     new_alert = Alert(
         type=alert.type,
         message=alert.message,
         location=alert.location,
-        latitude=alert.latitude,
-        longitude=alert.longitude,
+        latitude=_to_float_or_none(alert.latitude),
+        longitude=_to_float_or_none(alert.longitude),
         severity=alert.severity,
         is_active="true"
     )

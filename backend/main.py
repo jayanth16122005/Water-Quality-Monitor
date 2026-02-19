@@ -12,15 +12,18 @@ from routers.stations import router as stations_router
 from routers.alerts import router as alerts_router
 from routers.collaborations import router as collaborations_router
 from routers.predictive_alerts import router as predictive_alerts_router
+from routers.ngo_projects import router as ngo_projects_router
+from routers.dashboard import router as dashboard_router
 
 app = FastAPI(title="Water Quality Monitor")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5174"],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
+    max_age=0,  # Disable preflight caching so browsers always re-check
 )
 
 
@@ -45,3 +48,5 @@ app.include_router(stations_router, prefix="/stations")
 app.include_router(alerts_router, prefix="/alerts")
 app.include_router(collaborations_router, prefix="/collaborations")
 app.include_router(predictive_alerts_router, prefix="/predict")
+app.include_router(ngo_projects_router, prefix="/ngo-projects")
+app.include_router(dashboard_router, prefix="/dashboard-data")
